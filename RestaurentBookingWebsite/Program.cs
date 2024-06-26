@@ -1,7 +1,15 @@
+using DALayer;
+using DALayer.Model;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddMvc();
+builder.Services.AddTransient(typeof(RestaurantContext));
+builder.Services.AddTransient(typeof(ILoginService));
+builder.Services.AddTransient(typeof(ILogin), typeof(ILoginService));
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -14,10 +22,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSwagger();
+
+app.UseSwaggerUI();
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=LoginPage}/{action=SigninUser}/{id?}");
 
 app.Run();
