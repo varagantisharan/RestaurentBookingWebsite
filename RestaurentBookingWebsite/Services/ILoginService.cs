@@ -1,25 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Entity_Layer;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using RestaurentBookingWebsite.DbModels;
 using System.Text;
-using System.Threading.Tasks;
-using Azure.Identity;
-using DALayer;
-using Entity_Layer;
-using Microsoft.EntityFrameworkCore;
-using DALayer.Model;
-using Microsoft.Extensions.Configuration;
-using System.Security.Cryptography.X509Certificates;
 
-
-
-namespace DALayer
+namespace RestaurentBookingWebsite.Services
 {
-
     public class ILoginService : ILogin
     {
         private RestaurantContext db;
-      
+
         public ILoginService(RestaurantContext db)
         {
             this.db = db;
@@ -28,11 +17,13 @@ namespace DALayer
 
         public SignInModel AdminSignUp(AdminsModel register)
         {
+            string Encypted_Password = Encryptdata(register.password);
+
             Admin newuser = new Admin();
             //newuser.AdminId = register.admin_id;
             newuser.FirstName = register.first_name;
-                newuser.LastName = register.last_name;
-            newuser.Password = register.password;
+            newuser.LastName = register.last_name;
+            newuser.Password = Encypted_Password;
             newuser.Email = register.email;
             newuser.Address = register.address;
             newuser.PhoneNumber = register.phone_number;
@@ -41,8 +32,8 @@ namespace DALayer
             SignInModel user = new SignInModel();
             try
             {
-                if (register.password == register.confirm_password)
-                {
+                //if (register.password == register.confirm_password)
+                //{
 
                     db.Admins.Add(newuser);
                     db.SaveChanges();
@@ -53,11 +44,11 @@ namespace DALayer
                     user.Password = register.password;
 
                     return user;
-                }
-                else
-                {
-                    throw new Exception("Enter valid details");
-                }
+                //}
+                //else
+                //{
+                //    throw new Exception("Enter valid details");
+                //}
 
             }
             catch (Exception e)
@@ -73,19 +64,21 @@ namespace DALayer
         }
         public SignInModel CustomerSignUp(CustomersModel register)
         {
+            string Encypted_Password = Encryptdata(register.password);
+
             Customer newuser = new Customer();
             newuser.FirstName = register.first_name;
             newuser.LastName = register.last_name;
             newuser.Address = register.address;
-            newuser.Password = register.password;
+            newuser.Password = Encypted_Password;
             newuser.PhoneNumber = register.phone_number;
             newuser.Email = register.email;
 
             SignInModel user = new SignInModel();
             try
             {
-                if (register.password == register.confirm_password)
-                {
+                //if (register.password == register.confirm_password)
+                //{
 
                     db.Customers.Add(newuser);
                     db.SaveChanges();
@@ -96,11 +89,11 @@ namespace DALayer
                     user.Password = register.password;
 
                     return user;
-                }
-                else
-                {
-                    throw new Exception("Enter valid details");
-                }
+                //}
+                //else
+                //{
+                //    throw new Exception("Enter valid details");
+                //}
 
             }
             catch (Exception e)
@@ -120,9 +113,11 @@ namespace DALayer
             {
                 var IsCustomer = db.Customers.Find(login.UserId);
                 var IsAdmin = db.Admins.Find(login.UserId);
+                
                 if (IsCustomer != null)
                 {
-                    if ((IsCustomer.CustomerId == login.UserId) & (IsCustomer.Password == login.Password))
+                    string Decrypted_Password = Decryptdata(IsCustomer.Password);
+                    if ((IsCustomer.CustomerId == login.UserId) & (IsCustomer.Password == Decrypted_Password))
                     {
                         model.UserId = IsCustomer.CustomerId;
                         model.Password = IsCustomer.Password;
@@ -135,7 +130,8 @@ namespace DALayer
                 }
                 else if (IsAdmin != null)
                 {
-                    if ((IsAdmin.AdminId == login.UserId) & (IsAdmin.Password == login.Password))
+                    string Decrypted_Password = Decryptdata(IsAdmin.Password);
+                    if ((IsAdmin.AdminId == login.UserId) & (IsAdmin.Password == Decrypted_Password))
                     {
                         model.UserId = IsAdmin.AdminId;
                         model.Password = IsAdmin.Password;
@@ -156,6 +152,30 @@ namespace DALayer
             {
                 throw new Exception(e.Message);
             }
+
+        }
+
+
+        public string Encryptdata(string password)
+        {
+            string strmsg = string.Empty;
+            byte[] encode = new byte[password.Length];
+            encode = Encoding.UTF8.GetBytes(password);
+            strmsg = Convert.ToBase64String(encode);
+            return strmsg;
+        }
+
+        public string Decryptdata(string encryptpwd)
+        {
+            string decryptpwd = string.Empty;
+            UTF8Encoding encodepwd = new UTF8Encoding();
+            Decoder Decode = encodepwd.GetDecoder();
+            byte[] todecode_byte = Convert.FromBase64String(encryptpwd);
+            int charCount = Decode.GetCharCount(todecode_byte, 0, todecode_byte.Length);
+            char[] decoded_char = new char[charCount];
+            Decode.GetChars(todecode_byte, 0, todecode_byte.Length, decoded_char, 0);
+            decryptpwd = new String(decoded_char);
+            return decryptpwd;
         }
 
     }

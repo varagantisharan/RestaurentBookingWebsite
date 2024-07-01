@@ -1,7 +1,12 @@
-using DALayer;
-using DALayer.Model;
+
+using RestaurentBookingWebsite.DbModels;
+using RestaurentBookingWebsite.Services;
+using sib_api_v3_sdk.Client;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Configuration.Default.ApiKey.Add("api-key", builder.Configuration["BrevoApi:ApiKey"]);
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

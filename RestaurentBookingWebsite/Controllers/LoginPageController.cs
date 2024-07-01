@@ -3,18 +3,21 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using DALayer;
-using DALayer.Model;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using RestaurentBookingWebsite.Services;
 
 namespace RestaurentBookingWebsite.Controllers
 {
     public class LoginPageController : Controller
     {
         private ILogin _loginser;
-        public LoginPageController(ILogin loginser)
+        private readonly string senderEmail;
+        private readonly string senderName;
+        public LoginPageController(ILogin loginser, IConfiguration configuration)
         {
             _loginser = loginser;
+            this.senderEmail = configuration["BrevoApi:SenderEmail"]!;
+            this.senderName = configuration["BrevoApi:SenderName"]!;
         }
         public IActionResult SigninUser()
         {
@@ -67,28 +70,48 @@ namespace RestaurentBookingWebsite.Controllers
             SignInModel user=new SignInModel();
             try
             {
-                if(newuser.Role == "Admin")
-                {
-                    user = _loginser.AdminSignUp(newuser);
-                }
-                else if(newuser.Role == "Customer")
-                {
-                    var customer = new CustomersModel();
-                    customer.first_name = newuser.first_name;
-                    customer.last_name = newuser.last_name;
-                    customer.address = newuser.address;
-                    customer.password = newuser.password;
-                    customer.phone_number = newuser.phone_number;
-                    customer.email = newuser.email;
-                    user = _loginser.CustomerSignUp(customer);
-                }
-                if (user!=null)
-                {
-                    return RedirectToAction("SigninUser");
+                if(newuser.password == newuser.confirm_password)
+                {           
+                    if (newuser.Role == "Admin")
+                    {
+                        user = _loginser.AdminSignUp(newuser);
+                    }
+                    else if (newuser.Role == "Customer")
+                    {
+                        var customer = new CustomersModel();
+                        customer.first_name = newuser.first_name;
+                        customer.last_name = newuser.last_name;
+                        customer.address = newuser.address;
+                        customer.password = newuser.password;
+                        customer.phone_number = newuser.phone_number;
+                        customer.email = newuser.email;
+                        customer.confirm_password = newuser.confirm_password;
+                        customer.role = newuser.Role;
+                        user = _loginser.CustomerSignUp(customer);
+                    }
+                    if (user != null)
+                    {
+                        // send configuration mail
+                        string receiverEmail = newuser.email;
+                        string receiverName = newuser.first_name + " " + newuser.last_name;
+                        string message = "Dear " + receiverName + ".\n" +
+                        "Here is your userId please login with this userId " + user.UserId + ".\n" +
+                        "Thank You.\n" +
+                        "best regards";
+                        string subject = "Account has been created";
+
+                        EmailSender.SendEmail(senderName, senderEmail, receiverEmail, receiverName, subject, message);
+                        return RedirectToAction("SigninUser");
+
+                    }
+                    else
+                    {
+                        throw new Exception("Signup is not successful");
+                    }
                 }
                 else
                 {
-                    throw new Exception("Signup is not successful");
+                    throw new Exception("Password and Confirm Password must be same");
                 }
             }
             catch (Exception e)
@@ -96,32 +119,6 @@ namespace RestaurentBookingWebsite.Controllers
                 throw new Exception("Signup is not successful");
             }
         }
-
-        //public IActionResult CustomerSignup()
-        //{
-        //    return View();
-        //}
-        //[HttpPost]
-        //public IActionResult CustomerSignup(CustomersModel newuser)
-        //{
-        //    try
-        //    {
-        //        var user = _loginser.CustomerSignUp(newuser);
-        //        if (user != null)
-        //        {
-        //            return RedirectToAction("SigninUser");
-        //        }
-        //        else
-        //        {
-        //            throw new Exception("Signup is not successful");
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        throw new Exception("Signup is not successful");
-        //    }
-        //}
-
 
     }
 }

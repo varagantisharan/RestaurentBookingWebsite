@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DALayer.Model;
 using Entity_Layer;
+using RestaurentBookingWebsite.DbModels;
 
 namespace RestaurentBookingWebsite.Controllers
 {
