@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using RestaurentBookingWebsite.Services;
+using RestaurentBookingWebsite.Controllers;
 
 namespace RestaurentBookingWebsite.Controllers
 {
@@ -41,7 +42,7 @@ namespace RestaurentBookingWebsite.Controllers
                     }
                     else
                     {
-                        return RedirectToAction("ShowCustById", "Emp", new { @id = model.UserId });
+                        return RedirectToAction("CustDashboard", "CustomerDashboard", new { @id = model.UserId });
                     }
                 }
                 else

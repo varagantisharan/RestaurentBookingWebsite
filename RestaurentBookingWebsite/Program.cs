@@ -14,9 +14,11 @@ builder.Services.AddMvc();
 builder.Services.AddTransient(typeof(RestaurantContext));
 builder.Services.AddTransient(typeof(ILoginService));
 builder.Services.AddTransient(typeof(ILogin), typeof(ILoginService));
+builder.Services.AddTransient(typeof(IBookingServices));
+builder.Services.AddTransient(typeof(IBooking), typeof(IBookingServices));
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+var app = builder.Build(); 
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

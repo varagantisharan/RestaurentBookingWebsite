@@ -1,5 +1,6 @@
 ﻿using Entity_Layer;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using NuGet.Protocol.Plugins;
 using RestaurentBookingWebsite.DbModels;
 using System.Text;
 
@@ -117,7 +118,7 @@ namespace RestaurentBookingWebsite.Services
                 if (IsCustomer != null)
                 {
                     string Decrypted_Password = Decryptdata(IsCustomer.Password);
-                    if ((IsCustomer.CustomerId == login.UserId) & (IsCustomer.Password == Decrypted_Password))
+                    if ((IsCustomer.CustomerId == login.UserId) & (login.Password == Decrypted_Password))
                     {
                         model.UserId = IsCustomer.CustomerId;
                         model.Password = IsCustomer.Password;
@@ -131,7 +132,7 @@ namespace RestaurentBookingWebsite.Services
                 else if (IsAdmin != null)
                 {
                     string Decrypted_Password = Decryptdata(IsAdmin.Password);
-                    if ((IsAdmin.AdminId == login.UserId) & (IsAdmin.Password == Decrypted_Password))
+                    if ((IsAdmin.AdminId == login.UserId) & (login.Password == Decrypted_Password))
                     {
                         model.UserId = IsAdmin.AdminId;
                         model.Password = IsAdmin.Password;
@@ -178,5 +179,23 @@ namespace RestaurentBookingWebsite.Services
             return decryptpwd;
         }
 
+        public string GetUserName(int id)
+        {
+            var IsCustomer = db.Customers.Find(id);
+            var IsAdmin = db.Admins.Find(id);
+
+            if (IsCustomer != null)
+            {
+                return IsCustomer.FirstName + " " + IsCustomer.LastName;
+            }
+            else if (IsAdmin != null)
+            {
+                return IsAdmin.FirstName + " " + IsAdmin.LastName;
+            }
+            else
+            {
+                throw new Exception("Enter valid details");
+            }
+        }
     }
 }

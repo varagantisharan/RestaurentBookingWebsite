@@ -1,0 +1,52 @@
+﻿@model Entity_Layer.BookingsModel
+
+@{
+    ViewData["Title"] = "CustDashboard";
+}
+
+<h3>Hi @TempData["UserName"]</h3>
+
+<h4>Booking</h4>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Register">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @*<div class="form-group">
+                <label asp-for="CustomerId" class="control-label"></label>
+                <input asp-for="CustomerId" class="form-control" />
+                 <select asp-for="CustomerId" class ="form-control" asp-items="ViewBag.CustomerId"></select>
+
+                </div>*@
+            <div class="form-group">
+                <label asp-for="booking_date" class="control-label"></label>
+                <input asp-for="booking_date" type="date" class="form-control" min=@TempData["minDate"] max=@TempData["maxDate"]/>
+            </div>
+            @* <div class="form-group">
+                <label asp-for="booking_date" class="control-label"></label>
+                <input asp-for="booking_date" class="form-control" />
+                <span asp-validation-for="booking_date" class="text-danger"></span>
+            id="start" name="start"
+            </div> *@
+            <div class="form-group">
+                <label asp-for="slot_Time" class="control-label"></label>
+                <select asp-for="slot_Time" class="form-control">
+                    <option value="09:00:00">9:00 AM To 12:00 PM </option>
+                    <option value="13:00:00">1:00 PM To 4:00 PM </option>
+                    <option value="17:00:00">5:00 PM To 8:00 PM </option>
+                    <option value="21:00:00">9:00 PM To 12:00 AM </option>
+                </select>
+
+                <span asp-validation-for="slot_Time" class="text-danger"></span>
+            </div>
+           
+            <div class="form-group">
+                @* @Html.ActionLink("Book", "Register", new { id = Model.customer_id }) *@
+                <input type="submit" value="Book" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+    
+    
+    <a asp-action="Index">Back to List</a>
+</div>
