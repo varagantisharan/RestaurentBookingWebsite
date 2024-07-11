@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace RestaurentBookingWebsite.DbModels;
+namespace RestaurentBookingWebsite;
 
 public partial class RestaurantContext : DbContext
 {
@@ -39,9 +39,6 @@ public partial class RestaurantContext : DbContext
             entity.Property(e => e.Address)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.DateOfRegistration)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false)
@@ -124,9 +121,6 @@ public partial class RestaurantContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("address");
-            entity.Property(e => e.DateOfRegistration)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false)

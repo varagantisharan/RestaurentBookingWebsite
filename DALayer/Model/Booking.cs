@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RestaurentBookingWebsite.DbModels;
+namespace RestaurentBookingWebsite;
 
 public partial class Booking
 {

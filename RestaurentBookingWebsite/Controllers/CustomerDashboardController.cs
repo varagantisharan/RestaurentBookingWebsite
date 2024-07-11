@@ -9,38 +9,32 @@ namespace RestaurentBookingWebsite.Controllers
     {
         private ILoginService _loginService;
         private IBookingServices _bookingsServices;
-        private readonly string senderEmail;
-        private readonly string senderName;
-      
-        public CustomerDashboardController(ILoginService loginService,IBookingServices bookingServices, IConfiguration configuration)
+        private readonly IMail mailService;
+
+        public CustomerDashboardController(ILoginService loginService,IBookingServices bookingServices, IConfiguration configuration, IMail mailService)
         {
             _loginService = loginService;
             _bookingsServices = bookingServices;
-            this.senderEmail = configuration["BrevoApi:SenderEmail"]!;
-            this.senderName = configuration["BrevoApi:SenderName"]!;
+            this.mailService = mailService;
         }
 
         public IActionResult CustDashboard(int id)
         {
-            string Name = _loginService.GetUserName(id);
-
             TempData["CustId"] = id;
+
+            int custid = Convert.ToInt32(TempData["CustId"]);
+
+            string Name = _loginService.GetUserName(id,"Customer");
+
+
+
             TempData["UserName"] = Name;
 
             DateTime current_day = DateTime.Now;
 
-            TempData["minDate"] = current_day.AddDays(1).ToString("yyyy-MM-dd");
-            TempData["maxDate"] = current_day.AddDays(3).ToString("yyyy-MM-dd");
-
-            //DateTime current_day = DateTime.Now.Date;
-            //List<DateTime> nextdays = new List<DateTime>(); 
-
-            //for(int i=0; i<3; i++)
-            //{
-            //    nextdays.Add(current_day.AddDays(1));
-            //}
-
-            //TempData["slots"] = nextdays;
+            TempData["minDate"] = current_day.ToString("yyyy-MM-dd");
+            //TempData["minDate"] = current_day.AddDays(1).ToString("yyyy-MM-dd");
+            TempData["maxDate"] = current_day.AddDays(2).ToString("yyyy-MM-dd");
             return View();
         }
 
@@ -55,7 +49,9 @@ namespace RestaurentBookingWebsite.Controllers
         [HttpPost]
         public IActionResult Register(BookingsModel model)
         {
-            model.customer_id = Convert.ToInt32(TempData["CustId"]);
+            int custid = Convert.ToInt32(TempData["CustId"]);
+            int cid = Convert.ToInt32(TempData["CustomerId"]);
+            model.customer_id = cid ;
             var res= _bookingsServices.Register(model);
             var adminDetails = _bookingsServices.GetAllAdminDetails();
             if (res != null)
@@ -65,31 +61,43 @@ namespace RestaurentBookingWebsite.Controllers
 
                 if(IsValidCustomer!=null && IsValidBooking!=null) 
                 {
-                    string message = "Dear " + IsValidCustomer.FirstName + " " + IsValidCustomer.LastName + " .\n" +
-                    "Your booking has been completed successfully.\n" +
-                    "Booking Id :" + IsValidBooking.BookingId + "\n" +
-                    "Slot Date and time :" + IsValidBooking.BookingDate + "\n" +
-                    "Thank You.\n" +
-                    "Best regards,\n" +
-                    "Sharan";
+                    MailRequest mail = new MailRequest();
+
+                    string message = "Dear " + IsValidCustomer.FirstName + " " + IsValidCustomer.LastName + " .<br>" +
+                    "Your booking has been completed successfully.<br>" +
+                    "Booking Id :" + IsValidBooking.BookingId +
+                    "<br>Slot Date and time :" + IsValidBooking.BookingDate +
+                    "<br>Thank You." +
+                    "<br>Best regards," +
+                    "<br>Sharan";
                     string subject = "Booking has been confirmed";
 
-                    EmailSender.SendEmail(senderName, senderEmail, IsValidCustomer.Email, IsValidCustomer.FirstName + IsValidCustomer.LastName, subject, message);
+                    mail.Body = message;
+                    mail.Subject = subject;
+                    mail.ToEmail = IsValidCustomer.Email;
+
+                    mailService.SendEmail(mail);
                 }
                 if(adminDetails!=null)
                 {
                     foreach (var admin in adminDetails)
                     {
+                        MailRequest mail = new MailRequest();
                         string message = "Dear Admin " + admin.FirstName + " " + admin.LastName +
-                                         ", A new booking has been confirmed by the Customer: " + IsValidCustomer.FirstName + " " + IsValidCustomer.LastName +
-                                         " with the booking Id: " + IsValidBooking.BookingId + "\n" +
-                                         "Thank You.\n";
-                                         
+                                         ",<br>A new booking has been confirmed by the Customer: " + IsValidCustomer.FirstName + " " + IsValidCustomer.LastName +
+                                         " with the booking Id: " + IsValidBooking.BookingId +
+                                         "<br>Thank You.";
+
                         string subject = "Booking has been confirmed";
 
-                        EmailSender.SendEmail(senderName, senderEmail, admin.Email, admin.FirstName + admin.LastName, subject, message);
+                        mail.Body = message;
+                        mail.Subject = subject;
+                        mail.ToEmail = admin.Email;
+
+                        mailService.SendEmail(mail);
+
                     }
-                    
+
                 }
 
                 return RedirectToAction("CustDashboard", "CustomerDashboard", new { @id = model.customer_id });
@@ -103,6 +111,47 @@ namespace RestaurentBookingWebsite.Controllers
             
         }
 
+        [HttpGet]
+        public IActionResult MyBookings(int id)
+        {
+            var bookingDetails = _bookingsServices.GetCustomerBookingDetails(Convert.ToInt32(TempData["CustId"]));
+            if (bookingDetails != null)
+            {
+
+                return View(bookingDetails);
+            }
+            else
+            {
+                return View(null); 
+            }
+        }
+
+        //[HttpDelete]
+
+        //public IActionResult CancelBooking()
+        //{
+        //    return View();
+        //}
+
+
+        //[HttpPost]//, ActionName("CancelBooking")]
+        public IActionResult CancelBooking(int id) 
+        {
+            int res=_bookingsServices.CancelBooking(id);
+
+            if(res==1)
+            {
+                return RedirectToAction("MyBookings", "CustomerDashboard", new { @id = Convert.ToInt32(TempData["CustomerId"]) });
+            }
+            else
+            {
+                return RedirectToAction("MyBookings", "CustomerDashboard", new { @id = Convert.ToInt32(TempData["CustomerId"]) });
+                throw new Exception("Cannot cancel booking");
+            }
+            
+
+            
+        }
 
     }
 }

@@ -1,0 +1,104 @@
+﻿@model IEnumerable<RestaurentBookingWebsite.DbModels.Booking>
+
+@{
+    ViewData["Title"] = "AdmnDashboard";
+}
+<h3>Hi @TempData["UserName"]</h3>
+@if (ViewBag.Customers != null)
+{
+    <h1>Customers Registered in last 7 days</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Booking Date
+                </th>
+                <th>
+                    Slot Time
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Creation Time
+                </th>
+                <th>
+                    Booking Id
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.Bookings)
+            {
+                <tr>
+                    <td>
+                        @item.BookingDate
+                    </td>
+                    <td>
+                        @item.SlotTime
+                    </td>
+                    <td>
+                        @item.Status
+                    </td>
+                    <td>
+                        @item.CreationTime
+                    </td>
+                    <td>
+                        @item.BookingId
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (ViewBag.Bookings!=null)
+{
+    <h1>Upcoming 3 days bookings</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Booking Date
+                </th>
+                <th>
+                    Slot Time
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Creation Time
+                </th>
+                <th>
+                    Booking Id
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.Bookings)
+            {
+                <tr>
+                    <td>
+                        @item.BookingDate
+                    </td>
+                    <td>
+                        @item.SlotTime
+                    </td>
+                    <td>
+                        @item.Status
+                    </td>
+                    <td>
+                        @item.CreationTime
+                    </td>
+                    <td>
+                        @item.BookingId
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+

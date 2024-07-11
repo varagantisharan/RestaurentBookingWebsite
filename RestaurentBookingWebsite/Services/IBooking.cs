@@ -9,6 +9,7 @@ namespace RestaurentBookingWebsite.Services
         public Customer GetCustomerDetails(int id);
         public List<Admin> GetAllAdminDetails();
         public Booking GetBookingDetails(int custId);
-        
+        public List<Booking> GetCustomerBookingDetails(int custId);
+        public int CancelBooking(int bookingId);
     }
 }

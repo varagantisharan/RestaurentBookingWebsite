@@ -1,14 +1,19 @@
 
+using Entity_Layer;
 using RestaurentBookingWebsite.DbModels;
 using RestaurentBookingWebsite.Services;
-using sib_api_v3_sdk.Client;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-Configuration.Default.ApiKey.Add("api-key", builder.Configuration["BrevoApi:ApiKey"]);
+
+ConfigurationManager configuration = builder.Configuration;
+
+builder.Services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
 
 
 // Add services to the container.
+builder.Services.AddTransient<IMail, RestaurentBookingWebsite.Services.MailServices>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddMvc();
 builder.Services.AddTransient(typeof(RestaurantContext));
@@ -16,6 +21,10 @@ builder.Services.AddTransient(typeof(ILoginService));
 builder.Services.AddTransient(typeof(ILogin), typeof(ILoginService));
 builder.Services.AddTransient(typeof(IBookingServices));
 builder.Services.AddTransient(typeof(IBooking), typeof(IBookingServices));
+builder.Services.AddTransient(typeof(MailServices));
+builder.Services.AddTransient(typeof(IMail), typeof(MailServices));
+builder.Services.AddTransient(typeof(AdminServices));
+builder.Services.AddTransient(typeof(IAdmin), typeof(AdminServices));
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build(); 

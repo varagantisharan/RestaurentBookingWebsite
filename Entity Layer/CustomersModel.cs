@@ -18,5 +18,7 @@ namespace Entity_Layer
         public string email { get; set; }
         public string role { get; set; }
 
+        public string userid { get; set; }
+
     }
 }

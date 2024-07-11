@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RestaurentBookingWebsite.DbModels;
+namespace RestaurentBookingWebsite;
 
 public partial class Customer
 {
@@ -20,8 +20,6 @@ public partial class Customer
     public string Email { get; set; } = null!;
 
     public string UserId { get; set; } = null!;
-
-    public DateTime? DateOfRegistration { get; set; }
 
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 }

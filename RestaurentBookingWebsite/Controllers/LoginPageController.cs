@@ -6,19 +6,18 @@ using System.Security.Claims;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using RestaurentBookingWebsite.Services;
 using RestaurentBookingWebsite.Controllers;
+using MailKit;
 
 namespace RestaurentBookingWebsite.Controllers
 {
     public class LoginPageController : Controller
     {
         private ILogin _loginser;
-        private readonly string senderEmail;
-        private readonly string senderName;
-        public LoginPageController(ILogin loginser, IConfiguration configuration)
+        private readonly IMail mailService;
+        public LoginPageController(ILogin loginser, IMail mailService)
         {
             _loginser = loginser;
-            this.senderEmail = configuration["BrevoApi:SenderEmail"]!;
-            this.senderName = configuration["BrevoApi:SenderName"]!;
+            this.mailService = mailService;
         }
         public IActionResult SigninUser()
         {
@@ -32,17 +31,25 @@ namespace RestaurentBookingWebsite.Controllers
         {
             try
             {
-                var role = _loginser.SignIn(model);
-                if (role!=null)
+                var user = _loginser.SignIn(model);
+                if (user!=null)
                 {
 
-                    if (role == "Admin")
+                    if (user.Role == "Customer")
                     {
-                        return RedirectToAction("SigninUser");
+                        //TempData["AdmnId"] = user.admin_id;
+                        TempData["CustomerId"] = user.admin_id;
+                        return RedirectToAction("CustDashboard", "CustomerDashboard", new { @id = user.admin_id });
+                        
+                    }
+                    else if(user.Role == "Admin")
+                    {
+                        TempData["AdminId"] = user.admin_id;
+                        return RedirectToAction("AdmnDashboard","AdminDashboard", new { @id = user.admin_id });
                     }
                     else
                     {
-                        return RedirectToAction("CustDashboard", "CustomerDashboard", new { @id = model.UserId });
+                        return RedirectToAction("SigninUser");
                     }
                 }
                 else
@@ -80,6 +87,7 @@ namespace RestaurentBookingWebsite.Controllers
                     else if (newuser.Role == "Customer")
                     {
                         var customer = new CustomersModel();
+                        customer.userid = newuser.userid;
                         customer.first_name = newuser.first_name;
                         customer.last_name = newuser.last_name;
                         customer.address = newuser.address;
@@ -92,16 +100,21 @@ namespace RestaurentBookingWebsite.Controllers
                     }
                     if (user != null)
                     {
+                        MailRequest mail = new MailRequest(); 
                         // send configuration mail
                         string receiverEmail = newuser.email;
                         string receiverName = newuser.first_name + " " + newuser.last_name;
-                        string message = "Dear " + receiverName + ".\n" +
-                        "Here is your userId please login with this userId " + user.UserId + ".\n" +
-                        "Thank You.\n" +
-                        "best regards";
+                        string message = "Dear " + receiverName + ".<br>" +
+                        "Here is your userId please login with this userId " + user.UserId + "." +
+                        "<br>Thank You." +
+                        "<br>Best Regards";
                         string subject = "Account has been created";
+                        mail.Body = message;
+                        mail.Subject = subject;
+                        mail.ToEmail = newuser.email;
 
-                        EmailSender.SendEmail(senderName, senderEmail, receiverEmail, receiverName, subject, message);
+                        mailService.SendEmail(mail);
+
                         return RedirectToAction("SigninUser");
 
                     }
@@ -119,6 +132,11 @@ namespace RestaurentBookingWebsite.Controllers
             {
                 throw new Exception("Signup is not successful");
             }
+        }
+
+        public IActionResult Signout()
+        {
+            return RedirectToAction("SigninUser");
         }
 
     }

@@ -18,7 +18,7 @@
 
                 </div>*@
             <div class="form-group">
-                <label asp-for="booking_date" class="control-label"></label>
+                <label asp-for="booking_date" class="control-label">Booking Date</label>
                 <input asp-for="booking_date" type="date" class="form-control" min=@TempData["minDate"] max=@TempData["maxDate"]/>
             </div>
             @* <div class="form-group">
@@ -28,7 +28,7 @@
             id="start" name="start"
             </div> *@
             <div class="form-group">
-                <label asp-for="slot_Time" class="control-label"></label>
+                <label asp-for="slot_Time" class="control-label">Slot Time</label>
                 <select asp-for="slot_Time" class="form-control">
                     <option value="09:00:00">9:00 AM To 12:00 PM </option>
                     <option value="13:00:00">1:00 PM To 4:00 PM </option>
@@ -46,7 +46,7 @@
         </form>
     </div>
 </div>
-    
-    
-    <a asp-action="Index">Back to List</a>
+<div class="form-group">
+    @Html.ActionLink("View My Bookings", "MyBookings", new { id = @TempData["CustId"] })
+</div>    
 </div>

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Entity_Layer
 {
-    public class SignInModel
+    public class MailRequest
     {
-        public string UserId { get; set; } 
-        public string Password { get; set; } 
-        public int Id { get; set; }
+        public string ToEmail { get; set; }
+        public string Subject { get; set; }
+        public string Body { get; set; }
     }
 }

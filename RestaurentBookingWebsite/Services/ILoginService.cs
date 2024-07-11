@@ -1,5 +1,6 @@
 ﻿using Entity_Layer;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using NuGet.Protocol;
 using NuGet.Protocol.Plugins;
 using RestaurentBookingWebsite.DbModels;
 using System.Text;
@@ -22,6 +23,7 @@ namespace RestaurentBookingWebsite.Services
 
             Admin newuser = new Admin();
             //newuser.AdminId = register.admin_id;
+            newuser.UserId = register.userid;
             newuser.FirstName = register.first_name;
             newuser.LastName = register.last_name;
             newuser.Password = Encypted_Password;
@@ -33,24 +35,23 @@ namespace RestaurentBookingWebsite.Services
             SignInModel user = new SignInModel();
             try
             {
-                //if (register.password == register.confirm_password)
-                //{
-
+                var AdminExists = db.Customers.Where(c => c.UserId == newuser.UserId).ToList();
+                if (AdminExists.Count==0)
+                {
                     db.Admins.Add(newuser);
                     db.SaveChanges();
 
                     var CreatedUser = db.Admins.OrderBy(p => p.AdminId).Last();
 
-                    user.UserId = CreatedUser.AdminId;
+                    user.UserId = register.userid;
                     user.Password = register.password;
-
+                    user.Id = CreatedUser.AdminId;
                     return user;
-                //}
-                //else
-                //{
-                //    throw new Exception("Enter valid details");
-                //}
-
+                }
+                else
+                {
+                    throw new Exception("UserID already exists choose another one");
+                }
             }
             catch (Exception e)
             {
@@ -68,6 +69,7 @@ namespace RestaurentBookingWebsite.Services
             string Encypted_Password = Encryptdata(register.password);
 
             Customer newuser = new Customer();
+            newuser.UserId = register.userid;
             newuser.FirstName = register.first_name;
             newuser.LastName = register.last_name;
             newuser.Address = register.address;
@@ -78,24 +80,26 @@ namespace RestaurentBookingWebsite.Services
             SignInModel user = new SignInModel();
             try
             {
-                //if (register.password == register.confirm_password)
-                //{
+                var IsExistingCustomer = db.Customers.Where(c => c.UserId == newuser.UserId).ToList();
 
+                if(IsExistingCustomer.Count == 0)
+                {
                     db.Customers.Add(newuser);
                     db.SaveChanges();
 
                     var CreatedUser = db.Customers.OrderBy(p => p.CustomerId).Last();
 
-                    user.UserId = CreatedUser.CustomerId;
+                    user.UserId = CreatedUser.UserId;
                     user.Password = register.password;
+                    user.Id = CreatedUser.CustomerId;
 
                     return user;
-                //}
-                //else
-                //{
-                //    throw new Exception("Enter valid details");
-                //}
-
+                }
+                else
+                {
+                    throw new Exception("UserId already exists.");
+                }
+               
             }
             catch (Exception e)
             {
@@ -107,36 +111,40 @@ namespace RestaurentBookingWebsite.Services
             }
 
         }
-        public String SignIn(SignInModel login)
+        public AdminsModel SignIn(SignInModel login)
         {
-            SignInModel model = new SignInModel();
+            AdminsModel model = new AdminsModel();
             try
             {
-                var IsCustomer = db.Customers.Find(login.UserId);
-                var IsAdmin = db.Admins.Find(login.UserId);
-                
-                if (IsCustomer != null)
-                {
-                    string Decrypted_Password = Decryptdata(IsCustomer.Password);
-                    if ((IsCustomer.CustomerId == login.UserId) & (login.Password == Decrypted_Password))
+                var IsCustomer = db.Customers.Where(c => c.UserId == login.UserId).ToList();
+                //Find(login.UserId);
+                var IsAdmin = db.Admins.Where(c => c.UserId == login.UserId).ToList();
+                //.Find(login.UserId);
+
+                if (IsCustomer.Count>=1)
+                {                   
+                    string Decrypted_Password = Decryptdata(IsCustomer[0].Password);
+                    if ((IsCustomer[0].UserId == login.UserId) & (login.Password == Decrypted_Password))
                     {
-                        model.UserId = IsCustomer.CustomerId;
-                        model.Password = IsCustomer.Password;
-                        return "Customer";
+                        //model.userid = IsCustomer.UserId;
+                        model.admin_id = IsCustomer[0].CustomerId;
+                        model.Role = "Customer";
+                        return model;
                     }
                     else
                     {
                         throw new Exception("Invalid username or password");
                     }
                 }
-                else if (IsAdmin != null)
+                else if (IsAdmin.Count >= 1)
                 {
-                    string Decrypted_Password = Decryptdata(IsAdmin.Password);
-                    if ((IsAdmin.AdminId == login.UserId) & (login.Password == Decrypted_Password))
+                    string Decrypted_Password = Decryptdata(IsAdmin[0].Password);
+                    if ((IsAdmin[0].UserId == login.UserId) & (login.Password == Decrypted_Password))
                     {
-                        model.UserId = IsAdmin.AdminId;
-                        model.Password = IsAdmin.Password;
-                        return "Admin";
+                        //model.u = IsAdmin.UserId;
+                        model.admin_id = IsAdmin[0].AdminId;
+                        model.Role = "Admin";
+                        return model;
                     }
                     else
                     {
@@ -179,17 +187,16 @@ namespace RestaurentBookingWebsite.Services
             return decryptpwd;
         }
 
-        public string GetUserName(int id)
+        public string GetUserName(int id,string role)
         {
-            var IsCustomer = db.Customers.Find(id);
-            var IsAdmin = db.Admins.Find(id);
-
-            if (IsCustomer != null)
+            if (role=="Customer")
             {
+                var IsCustomer = db.Customers.Find(id);
                 return IsCustomer.FirstName + " " + IsCustomer.LastName;
             }
-            else if (IsAdmin != null)
+            else if (role=="Admin")
             {
+                var IsAdmin = db.Admins.Find(id);
                 return IsAdmin.FirstName + " " + IsAdmin.LastName;
             }
             else
@@ -197,5 +204,7 @@ namespace RestaurentBookingWebsite.Services
                 throw new Exception("Enter valid details");
             }
         }
+
+        
     }
 }

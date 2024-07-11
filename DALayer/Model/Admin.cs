@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RestaurentBookingWebsite.DbModels;
+namespace RestaurentBookingWebsite;
 
 public partial class Admin
 {
@@ -20,6 +20,4 @@ public partial class Admin
     public string? PhoneNumber { get; set; }
 
     public string UserId { get; set; } = null!;
-
-    public DateTime? DateOfRegistration { get; set; }
 }
