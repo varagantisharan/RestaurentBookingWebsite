@@ -1,4 +1,4 @@
-﻿@model IEnumerable<RestaurentBookingWebsite.DbModels.Booking>
+﻿@model List<RestaurentBookingWebsite.DbModels.Booking>
 
 @{
     ViewData["Title"] = "AdmnDashboard";
@@ -6,7 +6,126 @@
 <h3>Hi @TempData["UserName"]</h3>
 @if (ViewBag.Customers != null)
 {
-    <h1>Customers Registered in last 7 days</h1>
+    <h3>Last Seven days Registration</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Customer Id
+                </th>
+                <th>
+                    First Name
+                </th>
+                <th>
+                    Last Name
+                </th>
+                <th>
+                    Address
+                </th>
+                <th>
+                    Phone Number
+                </th>
+                <th>
+                    Email
+                </th>
+                <th>
+                    User Id
+                </th>
+                <th>
+                    Date Of Registration
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.Customers)
+            {
+                <tr>
+                    <td>
+                        @item.CustomerId
+                    </td>
+                    <td>
+                        @item.FirstName
+                    </td>
+                    <td>
+                        @item.LastName
+                    </td>
+                    <td>
+                        @item.Address
+                    </td>
+                    <td>
+                        @item.PhoneNumber
+                    </td>
+                    <td>
+                        @item.Email
+                    </td>
+                    <td>
+                        @item.UserId
+                    </td>
+                    <td>
+                        @item.DateOfRegistration
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<h3>Upcoming 3 days bookings</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Booking Date
+            </th>
+            <th>
+                Slot Time
+            </th>
+            <th>
+                Status
+            </th>
+            <th>
+                Creation Time
+            </th>
+            <th>
+                Booking Id
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in ViewBag.Bookings)
+        {
+            <tr>
+                @if (ViewBag.Bookings.Count > 0)
+                {
+                    <td>
+                        @item.BookingDate
+                    </td>
+                    <td>
+                        @item.SlotTime
+                    </td>
+                    <td>
+                        @item.Status
+                    </td>
+                    <td>
+                        @item.CreationTime
+                    </td>
+                    <td>
+                        @item.BookingId
+                    </td>
+                }
+                else
+                {
+                    <td>No Data Available</td>
+                }
+            </tr>
+        }
+    </tbody>
+   
+</table>
+
+@if (ViewBag.Cancellations != null)
+{
+    <h3>Next Three Days Cancellation</h3>
     <table class="table">
         <thead>
             <tr>
@@ -28,7 +147,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in ViewBag.Bookings)
+            @foreach (var item in ViewBag.Cancellations)
             {
                 <tr>
                     <td>
@@ -52,53 +171,101 @@
     </table>
 }
 
-@if (ViewBag.Bookings!=null)
-{
-    <h1>Upcoming 3 days bookings</h1>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    Booking Date
-                </th>
-                <th>
-                    Slot Time
-                </th>
-                <th>
-                    Status
-                </th>
-                <th>
-                    Creation Time
-                </th>
-                <th>
-                    Booking Id
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in ViewBag.Bookings)
-            {
-                <tr>
-                    <td>
-                        @item.BookingDate
-                    </td>
-                    <td>
-                        @item.SlotTime
-                    </td>
-                    <td>
-                        @item.Status
-                    </td>
-                    <td>
-                        @item.CreationTime
-                    </td>
-                    <td>
-                        @item.BookingId
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+
+<div class="container">  
+    @using (Html.BeginForm("AdmnDashboard", "AdminDashboard", FormMethod.Post))  
+    {  
+        <div class="row">  
+            <div class="col-sm-2 text-lg-left"><label>From Date</label></div>  
+            <div class="col-sm-3">
+
+                <input type="date" name="From" class="form-control" placeholder="Select Date" />
+            </div>  
+            <div class="col-sm-2"><label>To Date</label></div>  
+            <div class="col-sm-3">
+
+                <input type="date" name="To" class="form-control" placeholder="Select Date" />
+            </div>  
+            <div class="col-sm-2">  
+                <input type="submit" value="Search" class="btn btn-primary form-control" />  
+            </div>  
+            <br /><br />  
+        </div>
+        @if (ViewBag.DateRangeBookings != null)
+        {
+            <h1>Bookings as per the selected start and end date</h1>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Booking Date
+                        </th>
+                        <th>
+                            Slot Time
+                        </th>
+                        <th>
+                            Status
+                        </th>
+                        <th>
+                            Creation Time
+                        </th>
+                        <th>
+                            Booking Id
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in ViewBag.DateRangeBookings)
+                    {
+                        <tr>
+                            <td>
+                                @item.BookingDate
+                            </td>
+                            <td>
+                                @item.SlotTime
+                            </td>
+                            <td>
+                                @item.Status
+                            </td>
+                            <td>
+                                @item.CreationTime
+                            </td>
+                            <td>
+                                @item.BookingId
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        }
+         
+    }  
+</div>  
+
+@* <form asp-action="BookingsPerRange">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="StartDate" class="control-label">From</label>
+        <input asp-for="StartDate" type="date" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="EndDate" class="control-label">To</label>
+        <input asp-for="EndDate" type="date" class="form-control" />
+    </div>
+    <div class="form-group">
+         @Html.ActionLink("Book", "Register", new { id = Model.customer_id }) 
+        <input type="submit" value="search" class="btn btn-primary" />
+    </div>
+</form> *@
+
+<h1>DownloadExcel</h1>
+<a href="@Url.Action("ExportToExcel", "AdminDashboard")">Export to Excel</a>
+
+<a href="@Url.Action("CustomerBookingDetails", "AdminDashboard")">Update CheckIn deta</a>
+
+
 
 
 

@@ -1,0 +1,57 @@
+﻿@model IEnumerable<RestaurentBookingWebsite.Models.CustomerBookingModel>
+@* @{
+    Layout = null;
+} *@
+
+
+<div class="container">  
+    @using (Html.BeginForm("CustomerBookingDetails", "AdminDashboard", FormMethod.Post))
+    {
+        <div class="row">  
+            <div class="col-sm-2 text-lg-left"><label>Enter User Id</label></div>  
+            <div class="col-sm-3">
+                <input type="text" name="UserId" class="form-control" placeholder="User Id" />
+            </div>  
+            <div class="col-sm-2">  
+                <input type="submit" value="Search" class="btn btn-primary form-control" />  
+            </div>  
+            <br /><br />  
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>UserId</th>
+                    <th>BookingId</th>
+                    <th>CustomerId</th>
+                    <th>BookingDate</th>
+                    <th>Status</th>
+                    <th>Checkin Id</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+
+                        <td>@item.Customer.UserId</td>
+                        <td>@item.Booking.BookingId</td>
+                        <td>@item.Customer.CustomerId</td>
+                        <td>@item.Booking.BookingDate</td>
+                        <td>@item.Booking.Status</td>
+                        <td>@item.CheckIn.CheckinId</td>
+                        <td>
+                            <a asp-action="CheckedIn" asp-route-id="@item.Booking.BookingId">CheckIn</a> |
+
+                            <a asp-action="CheckedOut" asp-route-id="@item.Booking.BookingId">CheckOut</a>                           
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+       
+   @*  </div> *@
